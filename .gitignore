@@ -8,6 +8,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignore SQLite database file
+keywords.db
+
+
 # Distribution / packaging
 .Python
 build/
