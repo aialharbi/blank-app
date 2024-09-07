@@ -36,6 +36,30 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Import keywords from the keywords1.csv file automatically
+def import_from_csv():
+    file_path = 'keywords 1.csv'
+    if os.path.isfile(file_path):
+        data = pd.read_csv(file_path, encoding='utf-8-sig')
+        
+        conn = sqlite3.connect('keywords.db')
+        c = conn.cursor()
+        
+        # Insert each row into the database
+        for index, row in data.iterrows():
+            keyword = normalize_arabic(row['keyword'])
+            meaning = row['meaning']
+            example = row['example']
+            note = ' '
+            c.execute("INSERT OR IGNORE INTO keywords (keyword, meaning, example, note) VALUES (?, ?, ?, ?)", 
+                      (keyword, meaning, example, note))
+        
+        conn.commit()
+        conn.close()
+        st.success(" ")
+    else:
+        st.warning(" ")
+
 # التحقق من وجود الكلمة في قاعدة البيانات (مع التطبيع)
 def check_keyword(keyword):
     normalized_keyword = normalize_arabic(keyword)  # Normalize the input keyword
@@ -64,6 +88,9 @@ def add_keyword(keyword, meaning, example, note=None):
         
         # Append the data to a CSV file for backup
         append_to_csv(keyword, meaning, example)
+
+        # # Refresh the page after adding the keyword
+        # st.rerun()
         
     except sqlite3.IntegrityError:
         st.error(f"خطأ: الكلمة '{keyword}' موجودة بالفعل.")
@@ -92,7 +119,6 @@ def append_to_csv(keyword, meaning, example):
     else:
         new_data.to_csv(file_path, index=False, mode='a', header=False, encoding='utf-8-sig')
 
-
 # Function to count the number of keywords in the database
 def count_keywords():
     conn = sqlite3.connect('keywords.db')
@@ -102,8 +128,9 @@ def count_keywords():
     conn.close()
     return count
 
-# تهيئة قاعدة البيانات
+# تهيئة قاعدة البيانات وتحديثها عند التشغيل
 init_db()
+import_from_csv()  # Import the keywords from the CSV automatically on startup
 
 # مركزية العنوان فقط وجعل باقي الواجهة باللغة العربية باستخدام CSS
 st.markdown(
@@ -141,7 +168,6 @@ st.title('معجم الكلمات العامية')
 st.subheader('إجمالي عدد الكلمات في قاعدة البيانات')
 keyword_count = count_keywords()
 st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
-
 
 # إدخال الكلمة
 keyword = st.text_input('أدخل كلمة:', '').strip()
@@ -186,6 +212,3 @@ else:
     st.write(f"لا توجد كلمات تبدأ بالحرف '{selected_letter}'.")
 
 st.markdown('</div>', unsafe_allow_html=True)
-
-
-
