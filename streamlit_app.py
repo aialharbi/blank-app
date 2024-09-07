@@ -89,9 +89,6 @@ def add_keyword(keyword, meaning, example, note=None):
         # Append the data to a CSV file for backup
         append_to_csv(keyword, meaning, example)
 
-        # # Refresh the page after adding the keyword
-        # st.rerun()
-        
     except sqlite3.IntegrityError:
         st.error(f"خطأ: الكلمة '{keyword}' موجودة بالفعل.")
     finally:
@@ -127,6 +124,21 @@ def count_keywords():
     count = c.fetchone()[0]
     conn.close()
     return count
+
+# Function to export all keywords from the database to a CSV file
+def export_keywords_to_csv():
+    conn = sqlite3.connect('keywords.db')
+    c = conn.cursor()
+    c.execute("SELECT keyword, meaning, example FROM keywords")
+    all_keywords = c.fetchall()
+    conn.close()
+
+    # Create a DataFrame from the fetched data
+    df = pd.DataFrame(all_keywords, columns=['keyword', 'meaning', 'example'])
+    
+    # Export to CSV
+    df.to_csv('all_keywords_export.csv', index=False, encoding='utf-8-sig')
+    st.success('تم تصدير جميع الكلمات إلى ملف CSV.')
 
 # تهيئة قاعدة البيانات وتحديثها عند التشغيل
 init_db()
@@ -168,6 +180,10 @@ st.title('معجم الكلمات العامية')
 st.subheader('إجمالي عدد الكلمات في قاعدة البيانات')
 keyword_count = count_keywords()
 st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
+
+# زر لتصدير جميع الكلمات إلى CSV
+if st.button('تصدير جميع الكلمات إلى CSV'):
+    export_keywords_to_csv()
 
 # إدخال الكلمة
 keyword = st.text_input('أدخل كلمة:', '').strip()
@@ -212,5 +228,3 @@ else:
     st.write(f"لا توجد كلمات تبدأ بالحرف '{selected_letter}'.")
 
 st.markdown('</div>', unsafe_allow_html=True)
-
-#test
