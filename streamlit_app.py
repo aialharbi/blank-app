@@ -3,6 +3,7 @@ import sqlite3
 import re
 import pandas as pd
 import os
+from io import StringIO
 
 # قائمة الحروف العربية للتنقل
 arabic_letters = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي']
@@ -125,7 +126,7 @@ def count_keywords():
     conn.close()
     return count
 
-# Function to export all keywords from the database to a CSV file
+# Function to export all keywords from the database to a downloadable CSV file
 def export_keywords_to_csv():
     conn = sqlite3.connect('keywords.db')
     c = conn.cursor()
@@ -134,11 +135,15 @@ def export_keywords_to_csv():
     conn.close()
 
     # Create a DataFrame from the fetched data
-    df = pd.DataFrame(all_keywords, columns=['keyword', 'meaning', 'example'])
+    df = pd.DataFrame(all_keywords, columns=['الكلمة', 'المعنى', 'المثال'])
     
-    # Export to CSV
-    df.to_csv('all_keywords_export.csv', index=False, encoding='utf-8-sig')
-    st.success('تم تصدير جميع الكلمات إلى ملف CSV.')
+    # Create a CSV in memory (no need to save to disk)
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
+    csv_data = csv_buffer.getvalue()
+    
+    # Return the CSV data for download
+    return csv_data
 
 # تهيئة قاعدة البيانات وتحديثها عند التشغيل
 init_db()
@@ -181,9 +186,9 @@ st.subheader('إجمالي عدد الكلمات في قاعدة البيانا�
 keyword_count = count_keywords()
 st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
 
-# زر لتصدير جميع الكلمات إلى CSV
-if st.button('تصدير جميع الكلمات إلى CSV'):
-    export_keywords_to_csv()
+# زر لتصدير جميع الكلمات إلى CSV وتحميله إلى الجهاز المحلي
+csv_data = export_keywords_to_csv()
+st.download_button(label="تصدير جميع الكلمات إلى CSV", data=csv_data, file_name='all_keywords_export.csv', mime='text/csv')
 
 # إدخال الكلمة
 keyword = st.text_input('أدخل كلمة:', '').strip()
@@ -224,7 +229,4 @@ if keywords:
     for keyword, meaning, example in keywords:
         # Make the retrieved keyword red
         st.markdown(f"<strong style='color:red;'>{keyword}</strong>  |  **المعنى**: {meaning}  |  **المثال**: {example}", unsafe_allow_html=True)
-else:
-    st.write(f"لا توجد كلمات تبدأ بالحرف '{selected_letter}'.")
 
-st.markdown('</div>', unsafe_allow_html=True)
