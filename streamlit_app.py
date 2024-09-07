@@ -187,8 +187,8 @@ keyword_count = count_keywords()
 st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
 
 # زر لتصدير جميع الكلمات إلى CSV وتحميله إلى الجهاز المحلي
-csv_data = export_keywords_to_csv()
-st.download_button(label="تصدير جميع الكلمات إلى CSV", data=csv_data, file_name='all_keywords_export.csv', mime='text/csv')
+# csv_data = export_keywords_to_csv()
+# st.download_button(label="تصدير جميع الكلمات إلى CSV", data=csv_data, file_name='all_keywords_export.csv', mime='text/csv')
 
 # إدخال الكلمة
 keyword = st.text_input('أدخل كلمة:', '').strip()
