@@ -92,6 +92,16 @@ def append_to_csv(keyword, meaning, example):
     else:
         new_data.to_csv(file_path, index=False, mode='a', header=False, encoding='utf-8-sig')
 
+
+# Function to count the number of keywords in the database
+def count_keywords():
+    conn = sqlite3.connect('keywords.db')
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM keywords")
+    count = c.fetchone()[0]
+    conn.close()
+    return count
+
 # تهيئة قاعدة البيانات
 init_db()
 
@@ -170,3 +180,9 @@ else:
     st.write(f"لا توجد كلمات تبدأ بالحرف '{selected_letter}'.")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+
+# Example usage within Streamlit to display the keyword count
+st.subheader('إجمالي عدد الكلمات في قاعدة البيانات')
+keyword_count = count_keywords()
+st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
