@@ -181,10 +181,10 @@ st.markdown('<div class="main">', unsafe_allow_html=True)
 # Center the title using built-in h1 tag with CSS applied
 st.title('معجم الكلمات العامية')
 
-# Example usage within Streamlit to display the keyword count
-st.subheader('إجمالي عدد الكلمات في قاعدة البيانات')
-keyword_count = count_keywords()
-st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
+# # Example usage within Streamlit to display the keyword count
+# st.subheader('إجمالي عدد الكلمات في قاعدة البيانات')
+# keyword_count = count_keywords()
+# st.write(f"إجمالي عدد الكلمات المسجلة: {keyword_count}")
 
 # # زر لتصدير جميع الكلمات إلى CSV وتحميله إلى الجهاز المحلي
 # csv_data = export_keywords_to_csv()
